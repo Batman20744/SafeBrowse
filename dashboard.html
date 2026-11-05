@@ -1,0 +1,449 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeBrowse | Security Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+<div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">🛡</div>
+            <div>
+                <h2>SafeBrowse</h2>
+                <span>SECURITY CENTER</span>
+            </div>
+        </div>
+
+        <div class="sidebar-label">MAIN MENU</div>
+
+        <nav class="navigation">
+            <button class="nav-item active" data-page="overview">
+                <span>◈</span> Dashboard
+            </button>
+            <button class="nav-item" data-page="scanner">
+                <span>⌕</span> URL Scanner
+            </button>
+            <button class="nav-item" data-page="alerts">
+                <span>⚠</span> Threat Alerts
+            </button>
+            <button class="nav-item" data-page="history">
+                <span>◷</span> Scan History
+            </button>
+            <button class="nav-item" data-page="blocklist">
+                <span>⊘</span> Blocklist
+            </button>
+            <button class="nav-item" data-page="reports">
+                <span>▤</span> Reports
+            </button>
+            <button class="nav-item" data-page="settings">
+                <span>⚙</span> Settings
+            </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="protection-status">
+                <span class="online-dot"></span>
+                <div>
+                    <strong>Protection Active</strong>
+                    <small>Local analysis enabled</small>
+                </div>
+            </div>
+            <div class="sidebar-version">SafeBrowse v1.0.0</div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">SECURITY COMMAND CENTER</p>
+                <h1 id="pageTitle">Dashboard Overview</h1>
+            </div>
+
+            <div class="top-actions">
+                <span class="live-status">
+                    <span class="online-dot"></span> SYSTEM ONLINE
+                </span>
+                <button id="refreshButton" class="icon-button" title="Refresh">
+                    ↻
+                </button>
+                <div class="profile">
+                    <div class="profile-avatar">SB</div>
+                    <div>
+                        <strong>SafeBrowse</strong>
+                        <small>Administrator</small>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- OVERVIEW PAGE -->
+        <section class="page active" id="page-overview">
+
+            <div class="welcome-row">
+                <div>
+                    <h2>Security Overview</h2>
+                    <p>Monitor your browser security and URL analysis activity.</p>
+                </div>
+                <button class="primary-button" data-goto="scanner">
+                    + Scan New URL
+                </button>
+            </div>
+
+            <!-- METRIC CARDS -->
+            <div class="stats-grid">
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span>Total Scans</span>
+                        <span class="stat-icon purple">⌕</span>
+                    </div>
+                    <h2 id="totalScans">0</h2>
+                    <p>All recorded URL scans</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span>High Risk Alerts</span>
+                        <span class="stat-icon red">⚠</span>
+                    </div>
+                    <h2 id="highAlerts">0</h2>
+                    <p>High severity detections</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span>Medium Risk</span>
+                        <span class="stat-icon orange">◈</span>
+                    </div>
+                    <h2 id="mediumAlerts">0</h2>
+                    <p>Medium severity detections</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span>Low Risk</span>
+                        <span class="stat-icon green">✓</span>
+                    </div>
+                    <h2 id="lowAlerts">0</h2>
+                    <p>Low severity detections</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span>Critical Alerts</span>
+                        <span class="stat-icon red">✕</span>
+                    </div>
+                    <h2 id="criticalAlerts">0</h2>
+                    <p>Critical severity detections</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span>Blocked Domains</span>
+                        <span class="stat-icon purple">⊘</span>
+                    </div>
+                    <h2 id="blockedDomains">0</h2>
+                    <p>Local blocklist entries</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span>Average Risk Score</span>
+                        <span class="stat-icon orange">◉</span>
+                    </div>
+                    <h2 id="averageRisk">0</h2>
+                    <p>Across recorded scans</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span>Detection Rate</span>
+                        <span class="stat-icon green">↗</span>
+                    </div>
+                    <h2 id="detectionRate">0%</h2>
+                    <p>Medium and high risk scans</p>
+                </article>
+
+            </div>
+
+            <!-- CHARTS -->
+            <div class="charts-grid">
+
+                <article class="panel chart-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h3>Alerts by Severity</h3>
+                            <p>Distribution of detected risk levels</p>
+                        </div>
+                    </div>
+                    <canvas id="severityChart"></canvas>
+                </article>
+
+                <article class="panel chart-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h3>Escalations vs Total Alerts</h3>
+                            <p>Recorded scans by severity category</p>
+                        </div>
+                    </div>
+                    <canvas id="escalationChart"></canvas>
+                </article>
+
+                <article class="panel chart-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h3>Top 5 Sources</h3>
+                            <p>Most frequently scanned hostnames</p>
+                        </div>
+                    </div>
+                    <canvas id="sourcesChart"></canvas>
+                </article>
+
+                <article class="panel chart-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h3>Risk Distribution</h3>
+                            <p>Scan distribution by risk severity</p>
+                        </div>
+                    </div>
+                    <div class="donut-wrapper">
+                        <canvas id="riskChart"></canvas>
+                        <div class="donut-center">
+                            <strong id="donutTotal">0</strong>
+                            <span>Total Scans</span>
+                        </div>
+                    </div>
+                    <div class="chart-legend">
+                        <span><i class="legend-dot low"></i>Low</span>
+                        <span><i class="legend-dot medium"></i>Medium</span>
+                        <span><i class="legend-dot high"></i>High</span>
+                        <span><i class="legend-dot critical"></i>Critical</span>
+                    </div>
+                </article>
+
+            </div>
+
+            <!-- RECENT ACTIVITY -->
+            <article class="panel activity-panel">
+                <div class="panel-heading">
+                    <div>
+                        <h3>Recent Security Activity</h3>
+                        <p>Latest recorded URL scans</p>
+                    </div>
+                    <button class="text-button" data-goto="history">
+                        View All →
+                    </button>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Website / URL</th>
+                                <th>Risk Score</th>
+                                <th>Severity</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentActivity">
+                            <tr>
+                                <td colspan="4" class="empty-state">
+                                    No scan activity recorded yet.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+        </section>
+
+        <!-- URL SCANNER PAGE -->
+        <section class="page" id="page-scanner">
+            <div class="section-heading">
+                <h2>URL Security Scanner</h2>
+                <p>Analyze a website URL using the SafeBrowse detection engine.</p>
+            </div>
+
+            <article class="panel scanner-panel">
+                <label for="urlInput">Enter Website URL</label>
+                <div class="scanner-input-row">
+                    <input id="urlInput" type="url"
+                        placeholder="https://example.com">
+                    <button id="scanURLButton" class="primary-button">
+                        SCAN URL
+                    </button>
+                </div>
+
+                <div id="scannerResult" class="scanner-result">
+                    <div class="empty-state">
+                        Enter a URL above to begin security analysis.
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <!-- THREAT ALERTS PAGE -->
+        <section class="page" id="page-alerts">
+            <div class="section-heading">
+                <h2>Threat Alerts</h2>
+                <p>Review recorded medium, high and critical risk detections.</p>
+            </div>
+            <article class="panel">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Website</th>
+                                <th>Risk Score</th>
+                                <th>Severity</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alertsTable"></tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+
+        <!-- HISTORY PAGE -->
+        <section class="page" id="page-history">
+            <div class="section-heading">
+                <h2>Scan History</h2>
+                <p>Browse all locally stored security scan records.</p>
+            </div>
+            <article class="panel">
+                <div class="filter-row">
+                    <input id="historySearch" type="search"
+                        placeholder="Search website...">
+                    <select id="severityFilter">
+                        <option value="ALL">All Severity</option>
+                        <option value="LOW">Low</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="HIGH">High</option>
+                        <option value="CRITICAL">Critical</option>
+                    </select>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Website</th>
+                                <th>Score</th>
+                                <th>Severity</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTable"></tbody>
+                    </table>
+                </div>
+                <button id="clearDashboardHistory" class="danger-button">
+                    Clear All Scan History
+                </button>
+            </article>
+        </section>
+
+        <!-- BLOCKLIST PAGE -->
+        <section class="page" id="page-blocklist">
+            <div class="section-heading">
+                <h2>Domain Blocklist</h2>
+                <p>Review the local demonstration blocklist.</p>
+            </div>
+            <article class="panel">
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Domain</th>
+                                <th>Status</th>
+                                <th>Source</th>
+                            </tr>
+                        </thead>
+                        <tbody id="blocklistTable"></tbody>
+                    </table>
+                </div>
+                <p class="notice">
+                    Demonstration blocklist using reserved .test domains.
+                    It is not a live threat intelligence feed.
+                </p>
+            </article>
+        </section>
+
+        <!-- REPORTS PAGE -->
+        <section class="page" id="page-reports">
+            <div class="section-heading">
+                <h2>Security Reports</h2>
+                <p>Export locally stored scan records.</p>
+            </div>
+            <article class="panel report-panel">
+                <div class="report-icon">▤</div>
+                <h3>Scan History Report</h3>
+                <p>Export your recorded URL scans as a CSV spreadsheet.</p>
+                <button id="exportCSV" class="primary-button">
+                    EXPORT CSV REPORT
+                </button>
+            </article>
+        </section>
+
+        <!-- SETTINGS PAGE -->
+        <section class="page" id="page-settings">
+            <div class="section-heading">
+                <h2>Settings</h2>
+                <p>SafeBrowse application information and preferences.</p>
+            </div>
+            <article class="panel settings-panel">
+                <div class="setting-row">
+                    <div>
+                        <strong>Application</strong>
+                        <p>SafeBrowse Browser Security Scanner</p>
+                    </div>
+                    <span>v1.0.0</span>
+                </div>
+                <div class="setting-row">
+                    <div>
+                        <strong>Detection Engine</strong>
+                        <p>Local heuristic URL analysis</p>
+                    </div>
+                    <span class="setting-active">Active</span>
+                </div>
+                <div class="setting-row">
+                    <div>
+                        <strong>Storage</strong>
+                        <p>Chrome local extension storage</p>
+                    </div>
+                    <span class="setting-active">Enabled</span>
+                </div>
+                <div class="setting-row">
+                    <div>
+                        <strong>Threat Intelligence</strong>
+                        <p>Local demonstration blocklist only</p>
+                    </div>
+                    <span>Local</span>
+                </div>
+            </article>
+        </section>
+
+        <footer class="main-footer">
+            SafeBrowse v1.0.0 · Browser Security Dashboard
+            <span>Local URL Analysis</span>
+        </footer>
+
+    </main>
+</div>
+
+<script src="blocklist.js"></script>
+<script src="url-analyzer.js"></script>
+<script src="dashboard.js"></script>
+
+</body>
+</html>
+EOF

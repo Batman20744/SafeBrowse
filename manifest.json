@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "SafeBrowse - Phishing Detector",
+  "version": "1.0.0",
+  "description": "Detects suspicious URLs using heuristic analysis and a local blocklist.",
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "SafeBrowse Security"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}

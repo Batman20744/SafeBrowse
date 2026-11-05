@@ -1,0 +1,316 @@
+:root {
+    --bg: #0b0912;
+    --panel: #171323;
+    --border: #39264f;
+    --purple: #9146e8;
+    --purple-light: #b77aff;
+    --text: #f5efff;
+    --muted: #a69ab9;
+    --green: #58d6a3;
+    --red: #ff596f;
+    --orange: #ffb454;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 420px;
+    min-height: 500px;
+    max-height: 600px;
+    overflow-y: auto;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 13px;
+}
+
+.container {
+    padding: 20px;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+}
+
+.logo {
+    font-size: 35px;
+}
+
+header h1 {
+    color: var(--purple-light);
+    font-size: 23px;
+}
+
+header p {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 4px;
+}
+
+.version {
+    margin-left: auto;
+    color: var(--purple-light);
+    font-size: 10px;
+}
+
+.status-card {
+    text-align: center;
+    margin: 16px 0;
+    padding: 19px 12px;
+    background: linear-gradient(145deg, #21162f, #15111e);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.shield {
+    font-size: 36px;
+    margin-bottom: 8px;
+}
+
+.status-card h2 {
+    font-size: 16px;
+    margin-bottom: 9px;
+}
+
+#statusText {
+    color: var(--green);
+    font-size: 12px;
+}
+
+.website-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 13px;
+}
+
+.website-card label {
+    display: block;
+    color: var(--purple-light);
+    font-size: 11px;
+    margin-bottom: 7px;
+}
+
+#websiteURL {
+    color: #e8ddf5;
+    font-size: 11px;
+    overflow-wrap: anywhere;
+    line-height: 1.5;
+}
+
+button {
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.2s ease;
+}
+
+#scanButton {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #9c48ed, #6427a8);
+    color: white;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+#scanButton:hover {
+    background: linear-gradient(135deg, #b36aff, #803bc9);
+    box-shadow: 0 0 15px #9146e855;
+}
+
+#scanButton:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.dashboard-button {
+    width: 100%;
+    margin-top: 11px;
+    padding: 14px;
+    background: linear-gradient(135deg, #842fd1, #512080);
+    color: white;
+    border: 1px solid #a45aff;
+    border-radius: 9px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.dashboard-button:hover {
+    background: linear-gradient(135deg, #a45aff, #7532ba);
+    box-shadow: 0 0 16px #9955ff55;
+    transform: translateY(-1px);
+}
+
+.result-card {
+    margin-top: 17px;
+    padding: 17px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+}
+
+.result-card h3 {
+    color: var(--purple-light);
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.score-container {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+}
+
+#riskScore {
+    font-size: 35px;
+    font-weight: 800;
+    color: var(--green);
+}
+
+.score-label {
+    color: var(--muted);
+    font-size: 10px;
+}
+
+#severityText {
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: 750;
+}
+
+.progress {
+    height: 7px;
+    background: #393348;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 12px 0 17px;
+}
+
+#riskBar {
+    height: 100%;
+    width: 0%;
+    background: var(--green);
+    border-radius: 10px;
+    transition: width 0.4s ease;
+}
+
+.result-card h4 {
+    color: var(--purple-light);
+    font-size: 11px;
+    margin-bottom: 10px;
+}
+
+#resultText {
+    color: #ded5eb;
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+.finding {
+    padding: 6px 0;
+    border-bottom: 1px solid #34263f;
+    overflow-wrap: anywhere;
+}
+
+.history-card {
+    margin-top: 16px;
+    padding: 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.history-header h3 {
+    color: var(--purple-light);
+    font-size: 13px;
+}
+
+#clearHistoryButton {
+    background: #24192f;
+    border: 1px solid #67418c;
+    color: #d5b8ff;
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-size: 10px;
+}
+
+#clearHistoryButton:hover {
+    background: #49256c;
+    color: white;
+}
+
+.history-item {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    overflow-wrap: anywhere;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-item > div:first-child {
+    color: #eee5fa;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.history-score {
+    color: var(--purple-light);
+    font-size: 10px;
+    margin-top: 5px;
+}
+
+.history-time {
+    color: var(--muted);
+    font-size: 9px;
+    margin-top: 4px;
+}
+
+#historyList {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+footer {
+    text-align: center;
+    padding: 18px 0 5px;
+    color: #82748f;
+    font-size: 10px;
+    line-height: 1.7;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #624080;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--purple);
+}

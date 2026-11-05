@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeBrowse</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <main class="container">
+
+        <header>
+            <div class="logo">🛡️</div>
+            <div>
+                <h1>SafeBrowse</h1>
+                <p>Browser Security Scanner</p>
+            </div>
+            <span class="version">v1.0.0</span>
+        </header>
+
+        <section class="status-card">
+            <div class="shield">🛡️</div>
+            <h2>Website Security Check</h2>
+            <p id="statusText">Ready to scan</p>
+        </section>
+
+        <section class="website-card">
+            <label>Current Website</label>
+            <p id="websiteURL">Loading...</p>
+        </section>
+
+        <button id="scanButton">SCAN WEBSITE</button>
+
+        <button id="openDashboardButton" class="dashboard-button">
+            OPEN SECURITY DASHBOARD ↗
+        </button>
+
+        <section class="result-card">
+            <h3>Security Analysis</h3>
+
+            <div class="score-container">
+                <span id="riskScore">--</span>
+                <span class="score-label">/ 100 Risk Score</span>
+            </div>
+
+            <p id="severityText">Awaiting scan</p>
+
+            <div class="progress">
+                <div id="riskBar"></div>
+            </div>
+
+            <h4>Detection Findings</h4>
+            <div id="resultText">No scan performed yet.</div>
+        </section>
+
+        <section class="history-card">
+            <div class="history-header">
+                <h3>Recent Scan History</h3>
+                <button id="clearHistoryButton">Clear</button>
+            </div>
+            <div id="historyList">No scan history.</div>
+        </section>
+
+        <footer>
+            SafeBrowse v1.0.0<br>
+            Local URL Security Analysis
+        </footer>
+
+    </main>
+
+    <script src="blocklist.js"></script>
+    <script src="url-analyzer.js"></script>
+    <script src="popup.js"></script>
+</body>
+</html>
