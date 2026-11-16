@@ -132,6 +132,39 @@ function analyzeURL(inputURL) {
             "Hostname contains an internationalized punycode label"
         );
     }
+    // Brand domain impersonation detection
+const trustedBrandDomains = [
+    "paypal.com",
+    "google.com",
+    "microsoft.com",
+    "apple.com",
+    "amazon.com",
+    "facebook.com",
+    "instagram.com",
+    "netflix.com",
+    "chase.com",
+    "wellsfargo.com",
+    "bankofamerica.com"
+];
+
+const impersonatedBrand = trustedBrandDomains.find(brandDomain =>
+    hostname.startsWith(brandDomain + ".") ||
+    hostname.includes("." + brandDomain + ".")
+);
+
+const isGenuineBrandDomain = impersonatedBrand &&
+    (hostname === impersonatedBrand ||
+     hostname.endsWith("." + impersonatedBrand));
+
+if (impersonatedBrand && !isGenuineBrandDomain) {
+    addFinding(
+        45,
+        "BRAND_DOMAIN_IMPERSONATION",
+        "Possible brand impersonation: trusted domain " +
+        impersonatedBrand +
+        " appears inside an unrelated hostname"
+    );
+}
 
     // 8. Multiple hyphens
     const hyphenCount = (hostname.match(/-/g) || []).length;

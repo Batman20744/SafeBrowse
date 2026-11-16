@@ -133,6 +133,41 @@ function analyzeURL(inputURL) {
         );
     }
 
+    // 7. Misleading trusted-brand domain impersonation
+    const trustedBrandDomains = [
+        "paypal.com",
+        "google.com",
+        "microsoft.com",
+        "apple.com",
+        "amazon.com",
+        "facebook.com",
+        "instagram.com",
+        "netflix.com",
+        "chase.com",
+        "wellsfargo.com",
+        "bankofamerica.com"
+    ];
+
+    const impersonatedBrand = trustedBrandDomains.find(brandDomain =>
+        hostname.includes("." + brandDomain + ".") ||
+        hostname.startsWith(brandDomain + ".")
+    );
+
+    // Allow the genuine brand domain and its normal subdomains.
+    const isGenuineBrandDomain = impersonatedBrand &&
+        (hostname === impersonatedBrand ||
+         hostname.endsWith("." + impersonatedBrand));
+
+    if (impersonatedBrand && !isGenuineBrandDomain) {
+        addFinding(
+            45,
+            "BRAND_DOMAIN_IMPERSONATION",
+            "Possible brand impersonation: trusted domain " +
+            impersonatedBrand +
+            " appears inside an unrelated hostname"
+        );
+    }
+
     // 8. Multiple hyphens
     const hyphenCount = (hostname.match(/-/g) || []).length;
 

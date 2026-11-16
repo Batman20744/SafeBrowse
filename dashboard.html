@@ -312,6 +312,29 @@
                         <tbody id="alertsTable"></tbody>
                     </table>
                 </div>
+
+<div id="alertReport" class="alert-report" hidden>
+    <div class="alert-report-header">
+        <button id="closeAlertReport" class="text-button">
+            ← Back to Threat Alerts
+        </button>
+        <span id="reportSeverity" class="severity-badge"></span>
+    </div>
+
+    <h2>Security Threat Report</h2>
+
+    <div class="alert-report-details">
+        <p><strong>URL:</strong> <span id="reportURL"></span></p>
+        <p><strong>Hostname:</strong> <span id="reportHostname"></span></p>
+        <p><strong>Risk Score:</strong> <span id="reportScore"></span></p>
+        <p><strong>Severity:</strong> <span id="reportSeverityText"></span></p>
+        <p><strong>Timestamp:</strong> <span id="reportTime"></span></p>
+    </div>
+
+    <h3>Detection Findings</h3>
+    <ul id="reportFindings" class="finding-list"></ul>
+</div>
+
             </article>
         </section>
 

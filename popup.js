@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const openDashboardButton = $("openDashboardButton");
 
     let currentURL = "";
+    let isScanning = false;
 
     // OPEN FULL-SCREEN DASHBOARD
     openDashboardButton.addEventListener("click", () => {
@@ -22,6 +23,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             url: chrome.runtime.getURL("dashboard.html")
         });
     });
+
+    // NORMALIZE URL FOR DUPLICATE CHECKING
+    function normalizeURL(url) {
+        try {
+            return new URL(url).href;
+        } catch {
+            return url;
+        }
+    }
 
     // LOAD CURRENT BROWSER TAB
     try {
@@ -45,6 +55,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     // PERFORM URL SECURITY SCAN
     scanButton.addEventListener("click", async () => {
 
+        if (isScanning) return;
+
         if (!/^https?:\/\//i.test(currentURL)) {
             statusText.textContent = "Unsupported page";
             resultText.textContent =
@@ -52,10 +64,41 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
+        isScanning = true;
         scanButton.disabled = true;
         scanButton.textContent = "SCANNING...";
 
         try {
+
+            const data = await chrome.storage.local.get("scanHistory");
+
+            const history = Array.isArray(data.scanHistory)
+                ? data.scanHistory
+                : [];
+
+            const normalizedURL = normalizeURL(currentURL);
+
+            // CHECK WHETHER THIS URL WAS ALREADY SCANNED
+            const existingScan = history.find(
+                item => normalizeURL(item.url) === normalizedURL
+            );
+
+            if (existingScan && Array.isArray(existingScan.findings)) {
+
+                // REUSE PREVIOUS RESULT
+                displayResults(
+                    existingScan.score,
+                    existingScan.severity,
+                    existingScan.findings
+                );
+
+                statusText.textContent =
+                    "Previously scanned — showing saved result";
+
+                return;
+            }
+
+            // RUN FRESH ANALYSIS
             const analysis = analyzeURL(currentURL);
 
             const blockResult =
@@ -83,17 +126,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             displayResults(score, severity, findings);
 
+            // SAVE RESULT WITHOUT DUPLICATING URL
             await saveHistory({
                 url: currentURL,
                 score,
                 severity,
+                findings,
                 time: new Date().toLocaleString()
             });
 
         } catch (error) {
             statusText.textContent = "Scan failed";
             resultText.textContent = error.message;
+
         } finally {
+            isScanning = false;
             scanButton.disabled = false;
             scanButton.textContent = "SCAN WEBSITE";
         }
@@ -135,15 +182,23 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // SAVE UP TO 20 RECENT SCANS
+    // SAVE HISTORY WITHOUT DUPLICATES
     async function saveHistory(entry) {
 
         const data = await chrome.storage.local.get("scanHistory");
 
-        const history = Array.isArray(data.scanHistory)
+        let history = Array.isArray(data.scanHistory)
             ? data.scanHistory
             : [];
 
+        const normalizedURL = normalizeURL(entry.url);
+
+        // REMOVE PREVIOUS ENTRY FOR THE SAME URL
+        history = history.filter(
+            item => normalizeURL(item.url) !== normalizedURL
+        );
+
+        // ADD LATEST RESULT AT THE TOP
         history.unshift(entry);
 
         await chrome.storage.local.set({

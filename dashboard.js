@@ -57,6 +57,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
+    // NORMALIZE URL FOR DUPLICATE DETECTION
+    function normalizeURL(url) {
+        try {
+            return new URL(url).href;
+        } catch {
+            return String(url || "");
+        }
+    }
+
     // =====================================
     // CHROME STORAGE
     // =====================================
@@ -65,9 +74,37 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             const data = await chrome.storage.local.get("scanHistory");
 
-            scanHistory = Array.isArray(data.scanHistory)
+            const rawHistory = Array.isArray(data.scanHistory)
                 ? data.scanHistory
                 : [];
+
+            // REMOVE DUPLICATES, KEEPING THE LATEST RECORD
+            const uniqueHistory = [];
+            const seenURLs = new Set();
+
+            for (const item of rawHistory) {
+                const normalized = normalizeURL(item?.url);
+
+                if (!normalized || seenURLs.has(normalized)) {
+                    continue;
+                }
+
+                seenURLs.add(normalized);
+                uniqueHistory.push(item);
+            }
+
+            // KEEP ONLY 20 UNIQUE RECORDS
+            scanHistory = uniqueHistory.slice(0, 20);
+
+            // SAVE CLEANED HISTORY
+            if (
+                JSON.stringify(rawHistory) !==
+                JSON.stringify(scanHistory)
+            ) {
+                await chrome.storage.local.set({
+                    scanHistory
+                });
+            }
 
             renderDashboard();
 
@@ -94,8 +131,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function navigateTo(pageName) {
         const pages = [
-            "overview", "scanner", "alerts",
-            "history", "blocklist", "reports", "settings"
+            "overview",
+            "scanner",
+            "alerts",
+            "history",
+            "blocklist",
+            "reports",
+            "settings"
         ];
 
         if (!pages.includes(pageName)) return;
@@ -113,7 +155,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const selectedPage = $("page-" + pageName);
 
-        if (selectedPage) selectedPage.classList.add("active");
+        if (selectedPage) {
+            selectedPage.classList.add("active");
+        }
 
         const titles = {
             overview: "Dashboard Overview",
@@ -172,18 +216,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             mediumAlerts: medium,
             lowAlerts: low,
             criticalAlerts: critical,
+
             blockedDomains: Array.isArray(
                 globalThis.SafeBrowseBlocklist?.BLOCKED_DOMAINS
             )
                 ? globalThis.SafeBrowseBlocklist.BLOCKED_DOMAINS.length
                 : 0,
+
             averageRisk: average,
             detectionRate: rate + "%"
         };
 
         Object.entries(values).forEach(([id, value]) => {
             const element = $(id);
-            if (element) element.textContent = value;
+
+            if (element) {
+                element.textContent = value;
+            }
         });
 
         $("donutTotal").textContent = total;
@@ -195,9 +244,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function drawCanvas(id, drawFunction) {
         const canvas = $(id);
+
         if (!canvas) return;
 
         const ctx = canvas.getContext("2d");
+
         if (!ctx) return;
 
         const rect = canvas.getBoundingClientRect();
@@ -209,12 +260,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const ratio = window.devicePixelRatio || 1;
 
-        // Set physical resolution without changing CSS dimensions.
         const pixelWidth = Math.round(width * ratio);
         const pixelHeight = Math.round(height * ratio);
 
-        if (canvas.width !== pixelWidth ||
-            canvas.height !== pixelHeight) {
+        if (
+            canvas.width !== pixelWidth ||
+            canvas.height !== pixelHeight
+        ) {
             canvas.width = pixelWidth;
             canvas.height = pixelHeight;
         }
@@ -263,16 +315,20 @@ document.addEventListener("DOMContentLoaded", async () => {
                         angle += Math.PI * 2;
                     }
 
-                    return distance >= item.radius - item.thickness / 2 - 8 &&
+                    return (
+                        distance >= item.radius - item.thickness / 2 - 8 &&
                         distance <= item.radius + item.thickness / 2 + 8 &&
                         angle >= item.startAngle &&
-                        angle <= item.endAngle;
+                        angle <= item.endAngle
+                    );
                 }
 
-                return x >= item.x &&
+                return (
+                    x >= item.x &&
                     x <= item.x + item.width &&
                     y >= item.y &&
-                    y <= item.y + item.height;
+                    y <= item.y + item.height
+                );
             });
 
             if (region) {
@@ -311,10 +367,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     function drawSeverityChart() {
         drawCanvas("severityChart", (ctx, width, height, regions) => {
             const items = [
-                { label: "Critical", value: getSeverityCount("CRITICAL"), color: COLORS.purpleDark },
-                { label: "High", value: getSeverityCount("HIGH"), color: COLORS.purple },
-                { label: "Medium", value: getSeverityCount("MEDIUM"), color: COLORS.purpleLight },
-                { label: "Low", value: getSeverityCount("LOW"), color: COLORS.purplePale }
+                {
+                    label: "Critical",
+                    value: getSeverityCount("CRITICAL"),
+                    color: COLORS.purpleDark
+                },
+                {
+                    label: "High",
+                    value: getSeverityCount("HIGH"),
+                    color: COLORS.purple
+                },
+                {
+                    label: "Medium",
+                    value: getSeverityCount("MEDIUM"),
+                    color: COLORS.purpleLight
+                },
+                {
+                    label: "Low",
+                    value: getSeverityCount("LOW"),
+                    color: COLORS.purplePale
+                }
             ];
 
             const left = 38;
@@ -324,7 +396,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const chartHeight = bottom - top;
 
-            const maximum = Math.max(1, ...items.map(i => i.value));
+            const maximum = Math.max(
+                1,
+                ...items.map(i => i.value)
+            );
+
             const scale = Math.ceil(maximum / 5) * 5 || 5;
 
             ctx.font = "10px Arial";
@@ -351,9 +427,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             const barWidth = Math.min(42, slot * 0.55);
 
             items.forEach((item, index) => {
-                const barHeight = (item.value / scale) * chartHeight;
+                const barHeight =
+                    (item.value / scale) * chartHeight;
 
-                const x = left + index * slot + (slot - barWidth) / 2;
+                const x =
+                    left + index * slot + (slot - barWidth) / 2;
+
                 const y = bottom - barHeight;
 
                 ctx.fillStyle = item.color;
@@ -457,7 +536,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 ctx.fillText(label, pointX(index), height - 8);
             });
 
-            series.forEach((item, seriesIndex) => {
+            series.forEach(item => {
                 ctx.beginPath();
                 ctx.strokeStyle = item.color;
                 ctx.lineWidth = 2;
@@ -466,8 +545,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                     const x = pointX(index);
                     const y = bottom - (value / scale) * chartHeight;
 
-                    if (index === 0) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
+                    if (index === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
                 });
 
                 ctx.stroke();
@@ -526,17 +608,21 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (!sources.length) {
                 ctx.fillStyle = COLORS.muted;
                 ctx.textAlign = "center";
+
                 ctx.fillText(
                     "No scan sources recorded",
                     width / 2,
                     height / 2
                 );
+
                 return;
             }
 
             sources.forEach(([name, value], index) => {
                 const y = top + index * rowHeight;
-                const barWidth = (value / maximum) * (right - left - 25);
+
+                const barWidth =
+                    (value / maximum) * (right - left - 25);
 
                 ctx.textAlign = "right";
                 ctx.fillStyle = COLORS.text;
@@ -560,11 +646,22 @@ document.addEventListener("DOMContentLoaded", async () => {
                 gradient.addColorStop(1, COLORS.purplePale);
 
                 ctx.fillStyle = gradient;
-                ctx.fillRect(left, y, Math.max(2, barWidth), 12);
+
+                ctx.fillRect(
+                    left,
+                    y,
+                    Math.max(2, barWidth),
+                    12
+                );
 
                 ctx.textAlign = "left";
                 ctx.fillStyle = COLORS.muted;
-                ctx.fillText(String(value), left + barWidth + 5, y + 10);
+
+                ctx.fillText(
+                    String(value),
+                    left + barWidth + 5,
+                    y + 10
+                );
 
                 regions.push({
                     title: name,
@@ -600,7 +697,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 COLORS.purplePale
             ];
 
-            const total = values.reduce((sum, value) => sum + value, 0);
+            const total = values.reduce(
+                (sum, value) => sum + value,
+                0
+            );
 
             const centerX = width / 2;
             const centerY = height / 2;
@@ -612,10 +712,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             if (total === 0) {
                 ctx.beginPath();
-                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+
+                ctx.arc(
+                    centerX,
+                    centerY,
+                    radius,
+                    0,
+                    Math.PI * 2
+                );
+
                 ctx.strokeStyle = COLORS.grid;
                 ctx.lineWidth = thickness;
                 ctx.stroke();
+
                 return;
             }
 
@@ -623,7 +732,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (value === 0) return;
 
                 const angle = (value / total) * Math.PI * 2;
-
                 const endAngle = startAngle + angle;
 
                 ctx.beginPath();
@@ -681,6 +789,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             tbody.innerHTML =
                 '<tr><td colspan="4" class="empty-state">' +
                 'No scan activity recorded yet.</td></tr>';
+
             return;
         }
 
@@ -690,13 +799,68 @@ document.addEventListener("DOMContentLoaded", async () => {
             row.innerHTML = `
                 <td>${escapeHTML(item.url)}</td>
                 <td>${Number(item.score) || 0}/100</td>
-                <td><span class="severity-badge ${severityClass(item.severity)}">${escapeHTML(severityClass(item.severity))}</span></td>
+                <td>
+                    <span class="severity-badge ${severityClass(item.severity)}">
+                        ${escapeHTML(severityClass(item.severity))}
+                    </span>
+                </td>
                 <td>${escapeHTML(item.time)}</td>
             `;
 
             tbody.appendChild(row);
         });
     }
+
+    // =====================================
+    // THREAT ALERT DETAIL REPORT
+    // =====================================
+
+    function openAlertReport(item) {
+        $("alertsTable").closest(".table-wrapper").hidden = true;
+        $("alertReport").hidden = false;
+
+        $("reportURL").textContent = item.url || "Unknown";
+        $("reportHostname").textContent = formatHostname(item.url);
+        $("reportScore").textContent = `${Number(item.score) || 0}/100`;
+        $("reportSeverityText").textContent = severityClass(item.severity);
+        $("reportTime").textContent = item.time || "Unknown";
+
+        const severity = $("reportSeverity");
+        severity.className = "severity-badge " + severityClass(item.severity);
+        severity.textContent = severityClass(item.severity);
+
+        const findings = $("reportFindings");
+        findings.replaceChildren();
+
+        const entries = Array.isArray(item.findings) ? item.findings : [];
+
+        if (!entries.length) {
+            const li = document.createElement("li");
+            li.textContent = "No detailed findings were stored for this scan.";
+            findings.appendChild(li);
+            return;
+        }
+
+        entries.forEach(finding => {
+            const li = document.createElement("li");
+            li.textContent = String(finding);
+            findings.appendChild(li);
+        });
+    }
+
+    function closeAlertReport() {
+        $("alertReport").hidden = true;
+        $("alertsTable").closest(".table-wrapper").hidden = false;
+    }
+
+    $("closeAlertReport").addEventListener("click", closeAlertReport);
+
+    // CLOSE REPORT WITH ESCAPE
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !$("alertReport").hidden) {
+            closeAlertReport();
+        }
+    });
 
     // =====================================
     // THREAT ALERTS
@@ -716,6 +880,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             tbody.innerHTML =
                 '<tr><td colspan="4" class="empty-state">' +
                 'No threat alerts recorded.</td></tr>';
+
             return;
         }
 
@@ -725,9 +890,33 @@ document.addEventListener("DOMContentLoaded", async () => {
             row.innerHTML = `
                 <td>${escapeHTML(item.url)}</td>
                 <td>${Number(item.score) || 0}/100</td>
-                <td><span class="severity-badge ${severityClass(item.severity)}">${escapeHTML(severityClass(item.severity))}</span></td>
+                <td>
+                    <span class="severity-badge ${severityClass(item.severity)}">
+                        ${escapeHTML(severityClass(item.severity))}
+                    </span>
+                </td>
                 <td>${escapeHTML(item.time)}</td>
             `;
+
+            // OPEN REPORT WHEN ROW IS CLICKED
+            row.addEventListener("click", () => {
+                openAlertReport(item);
+            });
+
+            // KEYBOARD ACCESSIBILITY
+            row.tabIndex = 0;
+            row.setAttribute("role", "button");
+            row.setAttribute(
+                "aria-label",
+                `View security report for ${item.url}`
+            );
+
+            row.addEventListener("keydown", event => {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    openAlertReport(item);
+                }
+            });
 
             tbody.appendChild(row);
         });
@@ -759,6 +948,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             tbody.innerHTML =
                 '<tr><td colspan="4" class="empty-state">' +
                 'No matching scan records found.</td></tr>';
+
             return;
         }
 
@@ -768,7 +958,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             row.innerHTML = `
                 <td>${escapeHTML(item.url)}</td>
                 <td>${Number(item.score) || 0}/100</td>
-                <td><span class="severity-badge ${severityClass(item.severity)}">${escapeHTML(severityClass(item.severity))}</span></td>
+                <td>
+                    <span class="severity-badge ${severityClass(item.severity)}">
+                        ${escapeHTML(severityClass(item.severity))}
+                    </span>
+                </td>
                 <td>${escapeHTML(item.time)}</td>
             `;
 
@@ -794,6 +988,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             tbody.innerHTML =
                 '<tr><td colspan="3" class="empty-state">' +
                 'No blocklist domains available.</td></tr>';
+
             return;
         }
 
@@ -802,7 +997,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             row.innerHTML = `
                 <td>${escapeHTML(domain)}</td>
-                <td><span class="severity-badge HIGH">BLOCKLISTED</span></td>
+                <td>
+                    <span class="severity-badge HIGH">
+                        BLOCKLISTED
+                    </span>
+                </td>
                 <td>Local demonstration list</td>
             `;
 
@@ -814,7 +1013,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     // URL SCANNER
     // =====================================
 
+    let isScanning = false;
+
     $("scanURLButton").addEventListener("click", async () => {
+
+        if (isScanning) return;
+
         const input = $("urlInput").value.trim();
         const button = $("scanURLButton");
         const result = $("scannerResult");
@@ -824,6 +1028,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
+        isScanning = true;
         button.disabled = true;
         button.textContent = "SCANNING...";
 
@@ -833,10 +1038,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             if (!analysis.valid) {
                 result.textContent =
                     "Invalid URL: " + analysis.findings.join(", ");
+
                 return;
             }
 
-            const blockResult = checkBlocklist(analysis.hostname);
+            const blockResult =
+                checkBlocklist(analysis.hostname);
 
             let score = analysis.riskScore;
             const findings = [...analysis.findings];
@@ -863,19 +1070,30 @@ document.addEventListener("DOMContentLoaded", async () => {
                 url: analysis.normalizedURL,
                 score,
                 severity,
+                findings,
                 time: new Date().toLocaleString()
             };
 
+            // GET EXISTING SCAN HISTORY
             const data = await chrome.storage.local.get("scanHistory");
 
             const history = Array.isArray(data.scanHistory)
                 ? data.scanHistory
                 : [];
 
-            history.unshift(entry);
+            // REMOVE EXISTING RECORD FOR THIS URL
+            const updatedHistory = history.filter(
+                item =>
+                    normalizeURL(item.url) !==
+                    normalizeURL(entry.url)
+            );
 
+            // ADD LATEST RESULT AT THE TOP
+            updatedHistory.unshift(entry);
+
+            // SAVE UNIQUE HISTORY
             await chrome.storage.local.set({
-                scanHistory: history.slice(0, 20)
+                scanHistory: updatedHistory.slice(0, 20)
             });
 
             renderScannerResult(entry, findings);
@@ -883,19 +1101,26 @@ document.addEventListener("DOMContentLoaded", async () => {
             await loadHistory();
 
         } catch (error) {
-            result.textContent = "Scan failed: " + error.message;
+            result.textContent =
+                "Scan failed: " + error.message;
 
         } finally {
+            isScanning = false;
             button.disabled = false;
             button.textContent = "SCAN URL";
         }
     });
 
+    // SCAN WHEN ENTER IS PRESSED
     $("urlInput").addEventListener("keydown", event => {
         if (event.key === "Enter") {
             $("scanURLButton").click();
         }
     });
+
+    // =====================================
+    // RENDER SCANNER RESULT
+    // =====================================
 
     function renderScannerResult(entry, findings) {
         const result = $("scannerResult");
@@ -918,6 +1143,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const severity = document.createElement("span");
         severity.className =
             "severity-badge " + severityClass(entry.severity);
+
         severity.textContent = entry.severity;
 
         const heading = document.createElement("h4");
@@ -932,7 +1158,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             list.appendChild(li);
         });
 
-        box.append(title, url, score, severity, heading, list);
+        box.append(
+            title,
+            url,
+            score,
+            severity,
+            heading,
+            list
+        );
+
         result.appendChild(box);
     }
 
@@ -941,11 +1175,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     // =====================================
 
     $("clearDashboardHistory").addEventListener("click", async () => {
+
         if (!confirm("Delete all scan history?")) return;
 
-        await chrome.storage.local.set({ scanHistory: [] });
+        try {
+            await chrome.storage.local.set({
+                scanHistory: []
+            });
 
-        await loadHistory();
+            await loadHistory();
+
+            $("scannerResult").textContent = "";
+
+        } catch (error) {
+            console.error("Unable to clear history:", error);
+        }
     });
 
     // =====================================
@@ -953,6 +1197,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // =====================================
 
     $("exportCSV").addEventListener("click", () => {
+
         if (!scanHistory.length) {
             alert("No scan records available to export.");
             return;
@@ -1024,6 +1269,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // =====================================
 
     chrome.storage.onChanged.addListener((changes, areaName) => {
+
         if (areaName === "local" && changes.scanHistory) {
             loadHistory();
         }
@@ -1036,6 +1282,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let resizeTimeout;
 
     window.addEventListener("resize", () => {
+
         clearTimeout(resizeTimeout);
 
         resizeTimeout = setTimeout(() => {
@@ -1050,4 +1297,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadHistory();
 
     console.log("SafeBrowse Dashboard v1.0.0 initialized.");
+
 });

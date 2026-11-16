@@ -1135,3 +1135,61 @@ input::placeholder {
         font-size: 10px;
     }
 }
+
+/* THREAT ALERT DETAIL REPORT */
+
+.alert-report {
+    margin-top: 20px;
+    padding: 25px;
+    background: var(--panel, #171321);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.alert-report[hidden] {
+    display: none;
+}
+
+.alert-report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.alert-report h2 {
+    margin-bottom: 20px;
+    font-size: 20px;
+}
+
+.alert-report h3 {
+    margin-top: 25px;
+    font-size: 15px;
+}
+
+.alert-report-details {
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    overflow-wrap: anywhere;
+}
+
+.alert-report-details p {
+    margin: 10px 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.alert-report-details strong {
+    color: var(--text);
+}
+
+#alertsTable tr {
+    cursor: pointer;
+}
+
+#alertsTable tr:hover {
+    background: rgba(153, 85, 255, 0.08);
+}
