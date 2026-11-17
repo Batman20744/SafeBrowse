@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 // REUSE PREVIOUS RESULT
                 displayResults(
-                    existingScan.score,
+                    (existingScan.score ?? existingScan.riskScore ?? 0),
                     existingScan.severity,
                     existingScan.findings
                 );
@@ -235,11 +235,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             const score = document.createElement("div");
             score.className = "history-score";
             score.textContent =
-                item.severity + " | Risk: " + item.score + "/100";
+                item.severity + " | Risk: " + (item.score ?? item.riskScore ?? 0) + "/100";
 
             const time = document.createElement("div");
             time.className = "history-time";
-            time.textContent = item.time;
+            time.textContent = item.time || (item.timestamp ? new Date(item.timestamp).toLocaleString() : "Time unavailable");
 
             container.append(url, score, time);
             historyList.appendChild(container);

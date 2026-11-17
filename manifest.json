@@ -5,7 +5,9 @@
   "description": "Detects suspicious URLs using heuristic analysis and a local blocklist.",
   "permissions": [
     "activeTab",
-    "storage"
+    "storage",
+    "webNavigation",
+    "notifications"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -13,5 +15,9 @@
   },
   "background": {
     "service_worker": "background.js"
-  }
+  },
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ]
 }

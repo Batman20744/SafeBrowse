@@ -239,3 +239,65 @@ test("Detection findings are returned as an array", () => {
 });
 
 console.log("SafeBrowse automated test suite loaded.");
+
+// ==========================================
+// 6. REAL-WORLD PHISHING DETECTION TESTS
+// ==========================================
+
+test("Detects randomized hosted-platform subdomain", () => {
+    const result = analyzeURL(
+        "https://vzmpt731-4k8w2xn-6j3d9g-rq517c.pages.dev/"
+    );
+
+    assert.ok(
+        result.indicators.includes("RANDOMIZED_HOSTED_SUBDOMAIN")
+    );
+});
+
+test("Does not flag a normal hosted-platform subdomain", () => {
+    const result = analyzeURL(
+        "https://my-project.pages.dev/"
+    );
+
+    assert.ok(
+        !result.indicators.includes("RANDOMIZED_HOSTED_SUBDOMAIN")
+    );
+});
+
+test("Detects OLX brand impersonation", () => {
+    const result = analyzeURL(
+        "https://olx.payu-poland-run.bond/"
+    );
+
+    assert.ok(
+        result.indicators.includes("BRAND_KEYWORD_IMPERSONATION")
+    );
+});
+
+test("Does not flag genuine OLX domain", () => {
+    const result = analyzeURL(
+        "https://www.olx.com/"
+    );
+
+    assert.ok(
+        !result.indicators.includes("BRAND_KEYWORD_IMPERSONATION")
+    );
+});
+
+test("Detects a randomized subdomain", () => {
+    const result = analyzeURL(
+        "https://gwrfdz4nmd.wpdns.site/wp-content/plugins/rocket/"
+    );
+
+    assert.ok(
+        result.indicators.includes("RANDOMIZED_SUBDOMAIN")
+    );
+});
+
+test("Does not flag a normal numeric domain label", () => {
+    const result = analyzeURL("https://example123.com");
+
+    assert.ok(
+        !result.indicators.includes("RANDOMIZED_SUBDOMAIN")
+    );
+});

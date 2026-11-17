@@ -1,0 +1,15 @@
+{
+  "tested": 300,
+  "detected": 297,
+  "missed": 3,
+  "errors": 0,
+  "detectionRate": 99,
+  "severity": {
+    "HIGH": 209,
+    "MEDIUM": 71,
+    "LOW": 20,
+    "INVALID": 0,
+    "ERROR": 0
+  },
+  "testedAt": "2026-11-16T21:37:43.037Z"
+}
